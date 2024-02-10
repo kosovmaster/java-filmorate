@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.exception.UnknownUserException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -18,8 +19,8 @@ import java.util.Map;
 @RestController
 @Slf4j
 public class UserController {
-    protected final Map<Integer, User> users = new HashMap<>();
-    protected Integer id = 1;
+    private final Map<Integer, User> users = new HashMap<>();
+    public Integer id = 1;
 
     @GetMapping("/users")
     public ResponseEntity<Collection<User>> getUsers() {
@@ -32,8 +33,7 @@ public class UserController {
             user.setName(user.getLogin());
         }
         user.setId(id++);
-        int userId = user.getId();
-        users.put(userId, user);
+        users.put(user.getId(), user);
         log.info("Пользователь успешно добавлен: " + user.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
@@ -41,7 +41,7 @@ public class UserController {
     @PutMapping("/users")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
         if (!users.containsKey(updatedUser.getId())) {
-            throw new RuntimeException("Неизвестный пользователь");
+            throw new UnknownUserException("Неизвестный пользователь");
         }
         if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
             updatedUser.setName(updatedUser.getLogin());

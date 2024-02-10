@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.exception.FilmAlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
@@ -17,8 +19,8 @@ import java.util.HashMap;
 @RestController
 @Slf4j
 public class FilmController {
-    protected final HashMap<Integer, Film> films = new HashMap<>();
-    protected Integer id = 1;
+    private final HashMap<Integer, Film> films = new HashMap<>();
+    public Integer id = 1;
 
     @GetMapping("/films")
     public Collection<Film> getFilm() {
@@ -28,7 +30,7 @@ public class FilmController {
     @PostMapping("/films")
     public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         if (films.containsValue(film)) {
-            throw new RuntimeException("Фильм с таким именем уже существует");
+            throw new FilmAlreadyExistsException("Фильм с таким именем уже существует");
         }
         film.setId(id++);
         int filmId = film.getId();
@@ -39,11 +41,12 @@ public class FilmController {
 
     @PutMapping("/films")
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film update) {
-        if (!films.containsKey(update.getId())) {
-            throw new RuntimeException("Фильм не найден");
+        Film film = films.get(update.getId());
+        if (film == null) {
+            throw new FilmNotFoundException("Фильм не найден");
         }
-        if (films.containsValue(update) && !films.get(update.getId()).equals(update)) {
-            throw new RuntimeException("Фильм с таким именем уже существует");
+        if (films.containsValue(update) && !film.equals(update)) {
+            throw new FilmAlreadyExistsException("Фильм с таким именем уже существует");
         }
         update.setName(update.getName());
         update.setDescription(update.getDescription());
