@@ -20,7 +20,7 @@ import java.util.HashMap;
 @Slf4j
 public class FilmController {
     private final HashMap<Integer, Film> films = new HashMap<>();
-    public Integer id = 1;
+    private int id = 1;
 
     @GetMapping("/films")
     public Collection<Film> getFilm() {
@@ -48,12 +48,11 @@ public class FilmController {
         if (films.containsValue(update) && !film.equals(update)) {
             throw new FilmAlreadyExistsException("Фильм с таким именем уже существует");
         }
-        update.setName(update.getName());
-        update.setDescription(update.getDescription());
-        update.setReleaseDate(update.getReleaseDate());
-        update.setDuration(update.getDuration());
-        films.put(update.getId(), update);
+        film.setName(update.getName());
+        film.setDescription(update.getDescription());
+        film.setReleaseDate(update.getReleaseDate());
+        film.setDuration(update.getDuration());
         log.info("Фильм успешно обновлен: " + update.getName());
-        return ResponseEntity.ok(update);
+        return ResponseEntity.ok(film);
     }
 }

@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
-    public Integer id = 1;
+    private int id = 1;
 
     @GetMapping("/users")
     public ResponseEntity<Collection<User>> getUsers() {
@@ -46,10 +46,11 @@ public class UserController {
         if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
             updatedUser.setName(updatedUser.getLogin());
         }
-        updatedUser.setName(updatedUser.getName());
-        updatedUser.setEmail(updatedUser.getEmail());
-        updatedUser.setBirthday(updatedUser.getBirthday());
-        users.put(updatedUser.getId(), updatedUser);
+        User user = users.get(updatedUser.getId());
+        user.setName(updatedUser.getName());
+        user.setEmail(updatedUser.getEmail());
+        user.setBirthday(updatedUser.getBirthday());
+        users.put(updatedUser.getId(), user);
         log.info("Пользователь успешно обновлён: " + updatedUser.getName());
         return ResponseEntity.ok(updatedUser);
     }
