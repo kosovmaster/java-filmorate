@@ -44,7 +44,7 @@ public class UserController {
         if (!users.containsKey(updatedUser.getId())) {
             throw new UnknownUserException("Неизвестный пользователь");
         }
-        if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(updatedUser.getLogin());
         } else {
             user.setName(updatedUser.getName());
