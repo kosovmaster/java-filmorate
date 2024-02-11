@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.exception.MissingOrBlankLoginException;
 import ru.yandex.practicum.filmorate.exception.UnknownUserException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -44,10 +45,10 @@ public class UserController {
             throw new UnknownUserException("Неизвестный пользователь");
         }
         if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
-            updatedUser.setName(updatedUser.getLogin());
+            throw new MissingOrBlankLoginException("Логин не может быть пустым");
         }
-        if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
-            throw new RuntimeException("Логин не может быть пустым");
+        if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
+            updatedUser.setName(updatedUser.getLogin());
         }
         User user = users.get(updatedUser.getId());
         user.setName(updatedUser.getName());
