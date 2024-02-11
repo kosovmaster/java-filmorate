@@ -52,6 +52,7 @@ public class FilmController {
         film.setDescription(update.getDescription());
         film.setReleaseDate(update.getReleaseDate());
         film.setDuration(update.getDuration());
+        films.put(film.getId(), film);
         log.info("Фильм успешно обновлен: " + update.getName());
         return ResponseEntity.ok(film);
     }
