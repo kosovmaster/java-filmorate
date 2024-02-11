@@ -48,13 +48,13 @@ public class UserController {
             updatedUser.setName(user.getName());
         }
         if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
-            updatedUser.setLogin(user.getLogin());
+            throw new RuntimeException("Логин не может быть пустым");
         }
-        user.setName(updatedUser.getName());
+        user.setLogin(updatedUser.getLogin());
         user.setEmail(updatedUser.getEmail());
         user.setBirthday(updatedUser.getBirthday());
         users.put(user.getId(), user);
-        log.info("Пользователь успешно обновлён: " + updatedUser.getName());
+        log.info("Пользователь успешно обновлён: " + user.getName());
         return ResponseEntity.ok(user);
     }
 }
