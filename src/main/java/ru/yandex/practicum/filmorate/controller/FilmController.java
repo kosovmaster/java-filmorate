@@ -40,20 +40,20 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film update) {
-        Film film = films.get(update.getId());
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm) {
+        Film film = films.get(updatedFilm.getId());
         if (film == null) {
             throw new FilmNotFoundException("Фильм не найден");
         }
-        if (films.containsValue(update) && !film.equals(update)) {
+        if (films.containsValue(updatedFilm) && !film.equals(updatedFilm)) {
             throw new FilmAlreadyExistsException("Фильм с таким именем уже существует");
         }
-        film.setName(update.getName());
-        film.setDescription(update.getDescription());
-        film.setReleaseDate(update.getReleaseDate());
-        film.setDuration(update.getDuration());
+        film.setName(updatedFilm.getName());
+        film.setDescription(updatedFilm.getDescription());
+        film.setReleaseDate(updatedFilm.getReleaseDate());
+        film.setDuration(updatedFilm.getDuration());
         films.put(film.getId(), film);
-        log.info("Фильм успешно обновлен: " + update.getName());
+        log.info("Фильм успешно обновлен: " + updatedFilm.getName());
         return ResponseEntity.ok(film);
     }
 }
