@@ -43,18 +43,19 @@ public class UserController {
         if (!users.containsKey(updatedUser.getId())) {
             throw new UnknownUserException("Неизвестный пользователь");
         }
-        User user = users.get(updatedUser.getId());
-        if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
-            updatedUser.setName(user.getName());
+        if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
+            updatedUser.setName(updatedUser.getLogin());
         }
         if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
             throw new RuntimeException("Логин не может быть пустым");
         }
+        User user = users.get(updatedUser.getId());
+        user.setName(updatedUser.getName());
         user.setLogin(updatedUser.getLogin());
         user.setEmail(updatedUser.getEmail());
         user.setBirthday(updatedUser.getBirthday());
         users.put(user.getId(), user);
-        log.info("Пользователь успешно обновлён: " + user.getName());
+        log.info("Пользователь успешно обновлён: " + updatedUser.getName());
         return ResponseEntity.ok(user);
     }
 }

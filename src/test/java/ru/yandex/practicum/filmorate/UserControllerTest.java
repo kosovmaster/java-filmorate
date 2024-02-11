@@ -52,8 +52,8 @@ public class UserControllerTest extends UserController {
         User updatedUser = User.builder()
                 .id(existingUser.getId())
                 .email("updated.ivanov@mail.com")
-                .login("ivanov333")
-                .name("Ivan Ivanov")
+                .login("updated.ivanov333")
+                .name("updated Ivanov")
                 .birthday(LocalDate.of(1995, 8, 8))
                 .build();
         User returnedUser = userController.updateUser(updatedUser).getBody();
