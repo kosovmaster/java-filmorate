@@ -20,7 +20,7 @@ import java.util.HashMap;
 @Slf4j
 public class FilmController {
     private final HashMap<Integer, Film> films = new HashMap<>();
-    private int id = 1;
+    private Integer id = 1;
 
     @GetMapping("/films")
     public Collection<Film> getFilm() {
