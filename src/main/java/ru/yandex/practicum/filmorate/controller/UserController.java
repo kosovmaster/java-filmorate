@@ -46,9 +46,8 @@ public class UserController {
         }
         if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
             user.setName(updatedUser.getLogin());
-        } else {
-            user.setName(updatedUser.getName());
         }
+        user.setName(updatedUser.getName());
         user.setEmail(updatedUser.getEmail());
         user.setBirthday(updatedUser.getBirthday());
         users.put(user.getId(), user);
