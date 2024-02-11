@@ -75,6 +75,7 @@ public class UserControllerTest extends UserController {
     }
 
     @Test
+
     public void testUpdateUserWithInvalidEmail() {
         User existingUser = User.builder()
                 .id(1)
