@@ -40,17 +40,18 @@ public class UserController {
 
     @PutMapping("/users")
     public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
+        User user = users.get(updatedUser.getId());
         if (!users.containsKey(updatedUser.getId())) {
             throw new UnknownUserException("Неизвестный пользователь");
         }
-        if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
-            updatedUser.setName(updatedUser.getLogin());
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(updatedUser.getLogin());
         }
-        updatedUser.setName(updatedUser.getName());
-        updatedUser.setEmail(updatedUser.getEmail());
-        updatedUser.setBirthday(updatedUser.getBirthday());
-        users.put(updatedUser.getId(), updatedUser);
+        user.setName(updatedUser.getName());
+        user.setEmail(updatedUser.getEmail());
+        user.setBirthday(updatedUser.getBirthday());
+        users.put(user.getId(), user);
         log.info("Пользователь успешно обновлён: " + updatedUser.getName());
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(user);
     }
 }
