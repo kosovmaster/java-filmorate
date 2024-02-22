@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FilmServiceInterface {
-    ResponseEntity<Film> addFilm(@Valid @RequestBody Film film);
+
+    Film addFilm(@Valid Film film);
 
     Collection<Film> getFilm();
 

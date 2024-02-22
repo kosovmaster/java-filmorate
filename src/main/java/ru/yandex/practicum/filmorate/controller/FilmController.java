@@ -14,35 +14,35 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@Slf4j
 @RequestMapping("/films")
+@Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmService filmService;
+    private final FilmService service;
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return filmService.getFilm();
+        return service.getFilm();
     }
 
     @PostMapping
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-        return filmService.addFilm(film);
+    public Film addFilm(@Valid @RequestBody Film film) {
+        return service.addFilm(film);
     }
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm) {
-        return filmService.updateFilm(updatedFilm);
+        return service.updateFilm(updatedFilm);
     }
 
     @DeleteMapping("{filmId}")
     public void deleteFilm(@Valid @PathVariable Integer filmId) {
-        filmService.deleteFilm(filmId);
+        service.deleteFilm(filmId);
     }
 
     @GetMapping("{id}")
-    public Optional<Film> getFilm(@Valid @RequestBody Integer id) {
-        var film = filmService.findById(id);
+    public Optional<Film> getFilm(@Valid @PathVariable Integer id) {
+        var film = service.findById(id);
         if (film.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID");
         }
@@ -51,16 +51,16 @@ public class FilmController {
 
     @PutMapping("{id}/like/{userId}")
     public void addLike(@Valid @PathVariable Integer id, @Valid @PathVariable Integer userId) {
-        filmService.addLike(id, userId);
+        service.addLike(id, userId);
     }
 
     @DeleteMapping("{id}/like/{userId}")
     public void removeLike(@Valid @PathVariable Integer id, @Valid @PathVariable Integer userId) {
-        filmService.removeLike(id, userId);
+        service.removeLike(id, userId);
     }
 
     @GetMapping("/popular")
     public Collection<Film> getPopular(@Valid @RequestParam(defaultValue = "10", name = "count") Integer count) {
-        return filmService.getMostPopular(count);
+        return service.getMostPopular(count);
     }
 }

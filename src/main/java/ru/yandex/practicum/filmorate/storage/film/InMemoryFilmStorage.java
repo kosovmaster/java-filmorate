@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
+    public Film addFilm(@Valid @RequestBody Film film) {
         if (films.containsValue(film)) {
             throw new FilmAlreadyExistsException("Фильм с таким именем уже существует");
         }
@@ -35,7 +35,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         int filmId = film.getId();
         films.put(filmId, film);
         log.info("Фильм успешно добавлен: " + film.getName());
-        return ResponseEntity.status(HttpStatus.CREATED).body(film);
+        return ResponseEntity.status(HttpStatus.CREATED).body(film).getBody();
     }
 
     @Override
@@ -74,10 +74,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Integer filmId) {
-        if (films.containsKey(filmId)) {
-            return Optional.of(films.get(filmId));
-        } else {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(films.get(filmId));
     }
 }

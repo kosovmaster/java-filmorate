@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -30,14 +31,14 @@ public class FilmControllerTest extends AbstractControllerTest {
                 .releaseDate(LocalDate.of(1998, 2, 20))
                 .duration(195L)
                 .build();
-        Film addedFilm = filmController.addFilm(film).getBody();
+        Film addedFilm = filmController.addFilm(film);
         assertEquals(film, addedFilm);
     }
 
     @Test
     public void testUpdateFilm() {
         Film createdFilm = Film.builder()
-                .id(1)
+                .id(2)
                 .name("Titanic")
                 .description("how woman at 92 years old dreaming about a young boy she knew for 2 week on a boat")
                 .releaseDate(LocalDate.of(1998, 2, 20))

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -24,8 +25,8 @@ public class FilmService implements FilmServiceInterface {
     private final UserService service;
 
     @Override
-    public ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
-        ResponseEntity<Film> newFilm = storage.addFilm(film);
+    public Film addFilm(@Valid Film film) {
+        Film newFilm = storage.addFilm(film);
         log.info("Фильм {} успешно добавлен", film.getName());
         return newFilm;
     }
@@ -37,8 +38,17 @@ public class FilmService implements FilmServiceInterface {
 
     @Override
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm) {
-        log.info("Обновлён фильм: {}", updatedFilm);
-        return storage.updateFilm(updatedFilm);
+        Optional<Film> filmOptional = storage.findById(updatedFilm.getId());
+        if (filmOptional.isEmpty()) {
+            throw new NotFoundException("Фильм с id: " + updatedFilm.getId() + " не найден");
+        }
+        Film film = filmOptional.get();
+        film.setName(updatedFilm.getName());
+        film.setDescription(updatedFilm.getDescription());
+        film.setReleaseDate(updatedFilm.getReleaseDate());
+        film.setDuration(updatedFilm.getDuration());
+        log.info("Фильм {} обновлён", updatedFilm.getName());
+        return storage.updateFilm(film);
     }
 
     @Override
