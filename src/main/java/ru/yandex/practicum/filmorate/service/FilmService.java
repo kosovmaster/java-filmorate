@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -82,15 +84,13 @@ public class FilmService implements FilmServiceInterface {
 
     @Override
     public void removeLike(Integer filmId, Integer userId) {
-        Optional<Film> filmOptional = storage.findById(filmId);
-        Optional<User> userOptional = service.findById(userId);
-
-        filmOptional.ifPresentOrElse(film -> {
-            userOptional.ifPresentOrElse(user -> {
-                film.removeLike(userId);
-                storage.updateFilm(film);
-                log.info("Пользователь: {} поставил дислайк фильму: {}", user, film);
-            }, () -> log.warn("Пользователь с id: {} не найден", userId));
-        }, () -> log.warn("Фильм с id: {} не найден", filmId));
+        if (filmId < 1 || userId < 1) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Не удалось найти пользователя или фильм");
+        }
+        Film film = storage.findById(filmId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм не найден"));
+        User user = service.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь не найден"));
+        film.removeLike(userId);
+        storage.updateFilm(film);
+        log.info("Пользователь: {} поставил лайк фильму: {}", user, film);
     }
 }
