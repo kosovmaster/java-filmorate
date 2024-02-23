@@ -9,7 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -42,7 +42,7 @@ public class UserControllerTest extends AbstractControllerTest {
     void cleanData() {
         filmService.getFilm().forEach(film -> film.getLikes().clear());
         filmService.getFilm().clear();
-        userService = null;
+        userServiceImpl = null;
     }
 
     @Test
@@ -120,7 +120,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testAddFriendWithValidId() {
-        UserService service = Mockito.mock(UserService.class);
+        UserServiceImpl service = Mockito.mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         controller.addFriend(1, 2);
         verify(service).addFriend(1, 2);
@@ -129,7 +129,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRemoveFriendWithValidId() {
-        UserService service = Mockito.mock(UserService.class);
+        UserServiceImpl service = Mockito.mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         controller.removeFriend(1, 2);
         verify(service).removeFriend(2, 1);
@@ -137,7 +137,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testAddFriendWithInvalidId() {
-        UserService service = Mockito.mock(UserService.class);
+        UserServiceImpl service = Mockito.mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         assertThrows(ResponseStatusException.class, () -> {
             controller.addFriend(0, 2);
@@ -147,7 +147,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetUsers() {
-        UserService service = Mockito.mock(UserService.class);
+        UserServiceImpl service = Mockito.mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         User existingUser1 = User.builder()
                 .id(1)
@@ -185,7 +185,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetFriends() {
-        UserService service = mock(UserService.class);
+        UserServiceImpl service = mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         User existingUser2 = User.builder()
                 .id(2)
@@ -216,7 +216,7 @@ public class UserControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetCrossFriend() {
-        UserService service = mock(UserService.class);
+        UserServiceImpl service = mock(UserServiceImpl.class);
         UserController controller = new UserController(service);
         User existingUser1 = User.builder()
                 .id(1)

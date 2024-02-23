@@ -3,10 +3,12 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -58,7 +60,7 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     public void testDeleteFilm() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         controller.deleteFilm(1);
         Mockito.verify(service, Mockito.times(1)).deleteFilm(1);
@@ -73,20 +75,18 @@ public class FilmControllerTest extends AbstractControllerTest {
                 .releaseDate(LocalDate.of(2000, 2, 20))
                 .duration(150L)
                 .build();
-        filmController.addFilm(createdFilm3);
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         when(service.findById(1)).thenReturn(Optional.of(createdFilm3));
-        Optional<Film> result = controller.getFilm(1);
+        ResponseEntity<Film> result = controller.getFilm(1);
         verify(service).findById(1);
-        assertTrue(result.isPresent());
-        assertEquals("Фильм3", result.get().getName());
-        assertEquals("Описание3", result.get().getDescription());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("Фильм3", result.getBody().getName());
+        assertEquals("Описание3", result.getBody().getDescription());
     }
-
     @Test
     public void testGetFilmWithInvalidId() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         when(service.findById(10)).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> {
@@ -97,7 +97,7 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetPopular() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         Film createdFilm1 = Film.builder()
                 .id(1)
@@ -154,7 +154,7 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     public void testAddLike() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         controller.addLike(1, 232);
         verify(service).addLike(1, 232);
@@ -162,7 +162,7 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRemoveLike() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         controller.removeLike(1, 232);
         verify(service).removeLike(1, 232);
@@ -170,7 +170,7 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetFilms() {
-        FilmService service = Mockito.mock(FilmService.class);
+        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
         FilmController controller = new FilmController(service);
         Film createdFilm1 = Film.builder()
                 .id(1)

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 
 import javax.validation.Valid;
 import java.util.Collection;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmController {
-    private final FilmService service;
+    private final FilmServiceImpl service;
 
     @GetMapping
     public Collection<Film> getFilms() {
@@ -41,12 +41,10 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public Optional<Film> getFilm(@Valid @PathVariable Integer id) {
-        var film = service.findById(id);
-        if (film.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID");
-        }
-        return film;
+    public ResponseEntity<Film> getFilm(@Valid @PathVariable Integer id) {
+        return service.findById(id)
+                .map(film -> ResponseEntity.ok().body(film))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID"));
     }
 
     @PutMapping("{id}/like/{userId}")

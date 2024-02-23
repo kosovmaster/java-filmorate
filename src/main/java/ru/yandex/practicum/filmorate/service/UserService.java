@@ -1,79 +1,29 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
-@Slf4j
-@Service
-@AllArgsConstructor
-public class UserService implements UserServiceInterface {
-    @Autowired
-    private final UserStorage storage;
+public interface UserService {
+    ResponseEntity<User> createUser(@Valid @RequestBody User user);
 
-    @Override
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        ResponseEntity<User> newUser = storage.createUser(user);
-        log.info("Пользователь {} успешно добавлен.", user.getName());
-        return newUser;
-    }
+    Collection<User> getUsers();
 
-    @Override
-    public Collection<User> getUsers() {
-        return storage.getUsers();
-    }
+    Optional<User> findById(Integer userId);
 
-    @Override
-    public Optional<User> findById(Integer userId) {
-        return storage.findById(userId);
-    }
+    Collection<User> getFriends(Integer userId);
 
-    @Override
-    public Collection<User> getFriends(Integer userId) {
-        return storage.getUserFriends(userId);
-    }
+    Collection<User> getCrossFriends(Integer userId, Integer otherUserId);
 
-    @Override
-    public Collection<User> getCrossFriends(Integer userId, Integer otherUserId) {
-        return storage.getUserCrossFriends(userId, otherUserId);
-    }
+    void deleteUser(Integer userId);
 
-    @Override
-    public void deleteUser(Integer userId) {
-        storage.deleteUser(userId);
-    }
+    ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser);
 
-    @Override
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
-        log.info("Обновлен пользователь: {}", updatedUser);
-        return storage.updateUser(updatedUser);
-    }
+    void addFriend(Integer id, Integer friendId);
 
-    @Override
-    public void addFriend(Integer id, Integer friendId) {
-        storage.findById(friendId).ifPresent(friend -> {
-            storage.findById(id).ifPresent(user -> {
-                if (!user.getFriends().contains(friend.getId())) {
-                    user.addFriend(friend);
-                }
-            });
-        });
-    }
-
-    @Override
-    public void removeFriend(Integer id, Integer userId) {
-        storage.findById(id).ifPresent(user -> {
-            user.getFriends().removeIf(friendId -> Objects.equals(friendId, userId));
-        });
-    }
+    void removeFriend(Integer id, Integer userId);
 }
