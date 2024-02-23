@@ -84,6 +84,7 @@ public class FilmControllerTest extends AbstractControllerTest {
         assertEquals("Фильм3", result.getBody().getName());
         assertEquals("Описание3", result.getBody().getDescription());
     }
+
     @Test
     public void testGetFilmWithInvalidId() {
         FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
