@@ -1,62 +1,82 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exception.MissingOrBlankLoginException;
-import ru.yandex.practicum.filmorate.exception.UnknownUserException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-@RestController
+@RestController("")
+@RequestMapping("/users")
 @Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private Integer id = 1;
+    private final UserServiceImpl service;
 
-    @GetMapping("/users")
-    public ResponseEntity<Collection<User>> getUsers() {
-        return ResponseEntity.ok(users.values());
+    @GetMapping
+    public Collection<User> getUsers() {
+        return service.getUsers();
     }
 
-    @PostMapping("/users")
+    @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        user.setId(id++);
-        users.put(user.getId(), user);
-        log.info("Пользователь успешно добавлен: " + user.getName());
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return service.createUser(user);
     }
 
-    @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser) {
-        if (!users.containsKey(updatedUser.getId())) {
-            throw new UnknownUserException("Неизвестный пользователь");
+    @PutMapping
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User updateUser) {
+        return service.updateUser(updateUser);
+    }
+
+    @DeleteMapping("{id}")
+    public void deleteUser(@Valid @PathVariable Integer userId) {
+        service.deleteUser(userId);
+    }
+
+    @GetMapping("{id}")
+    public Optional<User> findById(@Valid @PathVariable Integer id) {
+        var user = service.findById(id);
+        if (user.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти пользователя с указанным ID");
         }
-        if (updatedUser.getLogin() == null || updatedUser.getLogin().isBlank()) {
-            throw new MissingOrBlankLoginException("Логин не может быть пустым");
+        return user;
+    }
+
+    @PutMapping("{id}/friends/{friendId}")
+    public void addFriend(@Valid @PathVariable Integer id, @Valid @PathVariable Integer friendId) {
+        if (id < 1 || friendId < 1) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти пользователя с указанным ID");
         }
-        if (updatedUser.getName() == null || updatedUser.getName().isBlank()) {
-            updatedUser.setName(updatedUser.getLogin());
-        }
-        User user = users.get(updatedUser.getId());
-        user.setName(updatedUser.getName());
-        user.setLogin(updatedUser.getLogin());
-        user.setEmail(updatedUser.getEmail());
-        user.setBirthday(updatedUser.getBirthday());
-        users.put(user.getId(), user);
-        log.info("Пользователь успешно обновлён: " + updatedUser.getName());
-        return ResponseEntity.ok(user);
+        service.addFriend(id, friendId);
+        service.addFriend(friendId, id);
+    }
+
+    @DeleteMapping("{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        service.removeFriend(id, friendId);
+        service.removeFriend(friendId, id);
+    }
+
+    @GetMapping("{id}/friends")
+    public Collection<User> getFriends(@PathVariable Integer id) {
+        return service
+                .getFriends(id)
+                .stream()
+                .sorted(Comparator.comparing(user -> user.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("{id}/friends/common/{otherId}")
+    public Collection<User> getCrossFriend(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return service.getCrossFriends(id, otherId);
     }
 }
