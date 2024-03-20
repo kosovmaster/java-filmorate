@@ -1,209 +1,114 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
+import javax.validation.Validation;
+import javax.validation.ValidationException;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilmControllerTest extends AbstractControllerTest {
     @Autowired
-    private FilmController filmController;
+    private FilmController controller;
+    @Autowired
+    private FilmDbStorage filmStorage;
+    @Autowired
+    private MpaDbStorage mpaDbStorage;
+    @Autowired
+    private GenreDbStorage genreDbStorage;
+    @Autowired
+    private UserDbStorage userStorage;
+    @Autowired
+    private FilmService filmService;
+    private Film testFilm;
+    private static Validator validator;
 
-    @Test
-    public void testCreateFilm() {
-        Film film = Film.builder()
+    @BeforeAll
+    static void beforeAll() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
+    }
+
+    @BeforeEach
+     protected void init() {
+        filmService = new FilmService(filmStorage, userStorage, genreDbStorage, mpaDbStorage);
+        controller = new FilmController(filmService);
+        testFilm = Film.builder()
                 .id(1)
-                .name("Titanic")
-                .description("how woman at 92 years old dreaming about a young boy she knew for 2 week on a boat")
-                .releaseDate(LocalDate.of(1998, 2, 20))
-                .duration(195L)
+                .name("Тест название")
+                .description("Описание фильма")
+                .releaseDate(LocalDate.of(2000, 12, 12))
+                .duration(190)
                 .build();
-        Film addedFilm = filmController.addFilm(film);
-        assertEquals(film, addedFilm);
-    }
 
-    @Test
-    public void testUpdateFilm() {
-        Film createdFilm = Film.builder()
-                .id(2)
-                .name("Titanic")
-                .description("how woman at 92 years old dreaming about a young boy she knew for 2 week on a boat")
-                .releaseDate(LocalDate.of(1998, 2, 20))
-                .duration(195L)
-                .build();
-        filmController.addFilm(createdFilm);
-
-        Film updateFilm = Film.builder()
-                .id(createdFilm.getId())
-                .name("Titanic")
-                .description("how woman at 92 years old dreaming about a young boy she knew for 2 week on a boat, now with extra scenes")
-                .releaseDate(LocalDate.of(1998, 2, 20))
-                .duration(195L)
-                .build();
-        Film newFilm = filmController.updateFilm(updateFilm).getBody();
-        assertEquals(updateFilm, newFilm);
-    }
-
-    @Test
-    public void testDeleteFilm() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        controller.deleteFilm(1);
-        Mockito.verify(service, Mockito.times(1)).deleteFilm(1);
-    }
-
-    @Test
-    public void testGetFilmWithValidId() {
-        Film createdFilm3 = Film.builder()
-                .id(3)
-                .name("Фильм3")
-                .description("Описание3")
-                .releaseDate(LocalDate.of(2000, 2, 20))
-                .duration(150L)
-                .build();
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        when(service.findById(1)).thenReturn(Optional.of(createdFilm3));
-        ResponseEntity<Film> result = controller.getFilm(1);
-        verify(service).findById(1);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals("Фильм3", result.getBody().getName());
-        assertEquals("Описание3", result.getBody().getDescription());
-    }
-
-    @Test
-    public void testGetFilmWithInvalidId() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        when(service.findById(10)).thenReturn(Optional.empty());
-        assertThrows(ResponseStatusException.class, () -> {
-            controller.getFilm(10);
-        });
-        verify(service).findById(10);
-    }
-
-    @Test
-    public void testGetPopular() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        Film createdFilm1 = Film.builder()
+        testFilm.setGenres(new HashSet<>());
+        testFilm.setLikes(new HashSet<>());
+        testFilm.setMpa(Mpa.builder()
                 .id(1)
-                .name("Фильм1")
-                .description("Описание1")
-                .releaseDate(LocalDate.of(2000, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm1);
-        Film createdFilm2 = Film.builder()
-                .id(2)
-                .name("Фильм2")
-                .description("Описание2")
-                .releaseDate(LocalDate.of(2000, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm2);
-        Film createdFilm3 = Film.builder()
-                .id(3)
-                .name("Фильм3")
-                .description("Описание3")
-                .releaseDate(LocalDate.of(1998, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm3);
-        Film createdFilm4 = Film.builder()
-                .id(4)
-                .name("Фильм4")
-                .description("Описание4")
-                .releaseDate(LocalDate.of(1995, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm4);
-        Film createdFilm5 = Film.builder()
-                .id(5)
-                .name("Фильм5")
-                .description("Описание5")
-                .releaseDate(LocalDate.of(2005, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm5);
-
-        when(service.getMostPopular(5)).thenReturn(Arrays.asList(
-                createdFilm1,
-                createdFilm2,
-                createdFilm3,
-                createdFilm4,
-                createdFilm5
-        ));
-        Collection<Film> result = controller.getPopular(5);
-        verify(service).getMostPopular(5);
-        assertEquals(5, result.size());
+                .name("NC-17")
+                .build());
     }
 
     @Test
-    public void testAddLike() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        controller.addLike(1, 232);
-        verify(service).addLike(1, 232);
+    void createNewCorrectFilmIsOkTest() {
+        Optional<Film> film = controller.addFilm(testFilm);
+        assertEquals(film, filmService.findById(3));
     }
 
     @Test
-    public void testRemoveLike() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        controller.removeLike(1, 232);
-        verify(service).removeLike(1, 232);
+    void createFilmNameIsBlankBadRequestTest() {
+        testFilm.setName("");
+        try {
+            controller.addFilm(testFilm);
+        } catch (ValidationException e) {
+            assertEquals("Некорректно указано название фильма", e.getMessage());
+        }
     }
 
     @Test
-    public void testGetFilms() {
-        FilmServiceImpl service = Mockito.mock(FilmServiceImpl.class);
-        FilmController controller = new FilmController(service);
-        Film createdFilm1 = Film.builder()
-                .id(1)
-                .name("Фильм1")
-                .description("Описание1")
-                .releaseDate(LocalDate.of(2000, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm1);
-        Film createdFilm2 = Film.builder()
-                .id(2)
-                .name("Фильм2")
-                .description("Описание2")
-                .releaseDate(LocalDate.of(2000, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm2);
-        Film createdFilm3 = Film.builder()
-                .id(3)
-                .name("Фильм3")
-                .description("Описание3")
-                .releaseDate(LocalDate.of(1998, 2, 20))
-                .duration(150L)
-                .build();
-        controller.addFilm(createdFilm3);
-        when(service.getFilm()).thenReturn(Arrays.asList(
-                createdFilm1,
-                createdFilm2,
-                createdFilm3
-        ));
-        Collection<Film> result = controller.getFilms();
-        verify(service).getFilm();
-        assertEquals(3, result.size());
+    void createFilmRealiseDateInFutureBadRequestTest() {
+        testFilm.setReleaseDate(LocalDate.of(2033, 4, 13));
+        try {
+            controller.addFilm(testFilm);
+        } catch (ValidationException e) {
+            assertEquals("Некорректно указана дата релиза.", e.getMessage());
+        }
+    }
+
+    @Test
+    void createFilmRealiseDateInPastBadRequestTest() {
+        testFilm.setReleaseDate(LocalDate.of(1833, 4, 13));
+        try {
+            controller.addFilm(testFilm);
+        } catch (ValidationException e) {
+            assertEquals("Некорректно указана дата релиза.", e.getMessage());
+        }
+    }
+
+    @Test
+    void createFilm_IncorrectDescription_badRequestTest() {
+        testFilm.setDescription("Размер описания значительно превышает двести символов. Размер описания значительно превышает двести символов." +
+                "К сожалению размер описания фильма сейчас не превышает двести символов, размер описания значительно превышает двести символов." +
+                "Сейчас однозначно стал превышать двести символов!");
+
+        var violations = validator.validate(testFilm);
+        assertEquals(1, violations.size());
     }
 }

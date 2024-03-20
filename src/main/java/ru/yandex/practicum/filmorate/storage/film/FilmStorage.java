@@ -1,25 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
 
-import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
 
-    Collection<Film> getFilm();
+    List<FilmDao> getFilm();
 
-    Film addFilm(Film film);
+    Optional<FilmDao> addFilm(FilmDao film);
 
-    ResponseEntity<Film> updateFilm(@Valid @RequestBody Film updatedFilm);
+    FilmDao updateFilm(FilmDao updatedFilm) throws RuntimeException;
 
-    Film deleteFilm(Integer filmId);
+    void deleteFilm(Integer filmId);
 
-    List<Film> getMostPopular(Integer count);
+    Optional<FilmDao> like(int filmId, int userId);
 
-    Optional<Film> findById(Integer filmId);
+    Optional<FilmDao> deleteLike(int filmId, int userId);
+
+    List<FilmDao> getMostPopular(Integer count);
+
+    Optional<FilmDao> findById(Integer filmId);
 }
