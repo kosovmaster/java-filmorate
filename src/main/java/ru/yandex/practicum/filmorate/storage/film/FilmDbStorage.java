@@ -26,7 +26,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<FilmDao> getFilm() {
-        var sql =  "SELECT film_id, name, description, release_date, duration, mpa_id FROM FILMS";
+        var sql = "SELECT film_id, name, description, release_date, duration, mpa_id FROM FILMS";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
@@ -71,7 +71,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<FilmDao> like(int filmId, int userId) {
-        Optional <FilmDao> filmDao = findById(filmId);
+        Optional<FilmDao> filmDao = findById(filmId);
         String sqlQuery = "INSERT INTO LIKES (film_id, user_id) VALUES(?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         return filmDao;
