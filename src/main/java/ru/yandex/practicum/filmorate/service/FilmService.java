@@ -45,10 +45,6 @@ public class FilmService {
     }
 
     public Film updateFilm(Film updatedFilm) {
-        Optional<FilmDao> filmOptional = filmStorage.findById(updatedFilm.getId());
-        if (filmOptional.isEmpty()) {
-            throw new NotFoundException("Фильм с id: " + updatedFilm.getId() + " не найден");
-        }
         filmStorage.updateFilm(map(updatedFilm));
         mpaDbStorage.addMpaToFilm(updatedFilm);
         genreDbStorage.updateGenresForCurrentFilm(updatedFilm);
