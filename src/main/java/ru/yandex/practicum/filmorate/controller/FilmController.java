@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -44,13 +46,11 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public Optional<Film> getFilm(@Valid @PathVariable Integer id) {
+    public ResponseEntity<Film> getFilm(@Valid @PathVariable Integer id) {
         log.info("Получен GET-запрос на получение фильма");
-        Optional<Film> film = filmService.findById(id);
-        if (film.isEmpty()) {
-            throw new NotFoundException("Невозможно найти фильм с указанным ID");
-        }
-        return film;
+        return filmService.findById(id)
+                .map(film -> ResponseEntity.ok().body(film))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID"));
     }
 
     @PutMapping("{id}/like/{userId}")

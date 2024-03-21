@@ -59,37 +59,37 @@ public class UserService {
         return Optional.ofNullable(toMap(userDao));
     }
 
-    public Optional<User> addFriend(int userId, int friendId) {
+    public void addFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
         var user = userStorage.findById(userId);
         if (user.isEmpty()) {
-            return Optional.empty();
+            return;
         }
-        return Optional.ofNullable(toMap(user.get()));
+        toMap(user.get());
     }
 
-    public Optional<User> removeFriend(int userId, int friendId) {
+    public void removeFriend(int userId, int friendId) {
         userStorage.deleteFriend(userId, friendId);
         var user = userStorage.findById(userId);
         if (user.isEmpty()) {
-            return Optional.empty();
+            return;
         }
-        return Optional.ofNullable(toMap(user.get()));
+        toMap(user.get());
     }
 
     private UserDao fromUserToDao(User user) {
-        UserDao userDao = new UserDao(
+        return new UserDao(
                 user.getId(),
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
                 user.getFriends());
-        return userDao;
     }
 
     private User toMap(UserDao userDao) {
-        User user = User.builder()
+
+        return User.builder()
                 .id(userDao.id)
                 .email(userDao.email)
                 .login(userDao.login)
@@ -97,8 +97,6 @@ public class UserService {
                 .birthday(userDao.birthday)
                 .friends(userDao.friends)
                 .build();
-
-        return user;
     }
 
     private void validationUser(User user) throws ValidationException {
