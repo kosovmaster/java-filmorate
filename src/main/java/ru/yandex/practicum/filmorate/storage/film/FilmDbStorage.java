@@ -40,8 +40,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public FilmDao updateFilm(FilmDao updatedFilm) throws RuntimeException {
         String sqlQuery = "UPDATE FILMS SET " +
-                "name = :name, description = :description, release_date = :releaseDate, " +
-                "duration = :duration, mpa_id = :mpaId WHERE film_id = :id";
+                "name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE film_id=?";
         int rowsCount = jdbcTemplate.update(sqlQuery, updatedFilm.getName(), updatedFilm.getDescription(),
                 updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpaId(), updatedFilm.getId());
         if (rowsCount > 0) {
