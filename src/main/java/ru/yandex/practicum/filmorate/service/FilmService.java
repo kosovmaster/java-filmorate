@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -32,11 +33,15 @@ public class FilmService {
         mpaDbStorage.addMpaToFilm(film);
         genreDbStorage.addGenreNameToFilm(film);
         genreDbStorage.addGenresForCurrentFilm(film);
+        if (result.isEmpty())
+            return Optional.empty();
         return Optional.of(map(result.get()));
     }
 
     public Collection<Film> getFilm() {
-        return filmStorage.getFilm().stream()
+        return filmStorage
+                .getFilm()
+                .stream()
                 .map(this::map)
                 .collect(Collectors.toList());
     }
@@ -68,7 +73,9 @@ public class FilmService {
     }
 
     public List<Film> getMostPopular(Integer count) {
-        return filmStorage.getMostPopular(count).stream()
+        return filmStorage
+                .getMostPopular(count)
+                .stream()
                 .map(this::map)
                 .collect(Collectors.toList());
     }
@@ -77,18 +84,24 @@ public class FilmService {
         if (userStorage.findById(userId).isEmpty()) {
             throw new NotFoundException("Пользователь не найден");
         }
-        return filmStorage.like(filmId, userId).map(this::map);
+        var result = filmStorage.like(filmId, userId);
+        if (result.isEmpty())
+            return Optional.empty();
+        return Optional.of(map(result.get()));
     }
 
     public Optional<Film> removeLike(int filmId, int userId) {
         if (userStorage.findById(userId).isEmpty()) {
             throw new NotFoundException("Пользователь не найден");
         }
-        return filmStorage.deleteLike(filmId, userId).map(this::map);
+        var result = filmStorage.deleteLike(filmId, userId);
+        if (result.isEmpty())
+            return Optional.empty();
+        return Optional.of(map(result.get()));
     }
 
     public static FilmDao map(Film film) {
-        FilmDao filmDao = FilmDao.builder()
+        return FilmDao.builder()
                 .id(film.getId())
                 .name(film.getName())
                 .description(film.getDescription())
@@ -96,23 +109,25 @@ public class FilmService {
                 .duration(film.getDuration())
                 .mpaId(film.getMpa().getId())
                 .build();
-
-        return filmDao;
     }
 
     private Film map(FilmDao filmDao) {
-        Mpa mpa = mpaDbStorage.getMpaForId(filmDao.getMpaId()).get();
-        Collection<Genre> genres = genreDbStorage.getGenreForCurrentFilm(filmDao.getId());
+        var mpa = mpaDbStorage.getMpaForId(filmDao.mpaId);
+        var genres = genreDbStorage.getGenreForCurrentFilm(filmDao.id);
         Film film = Film.builder()
                 .id(filmDao.getId())
                 .name(filmDao.getName())
                 .description(filmDao.getDescription())
                 .releaseDate(filmDao.getReleaseDate())
                 .duration(filmDao.getDuration())
-                .mpa(mpa)
+                .mpa(mpa.get())
                 .genres(genres)
                 .build();
-
+        validate(film);
         return film;
+    }
+
+    public void validate(Film film) throws ValidationException {
+
     }
 }
