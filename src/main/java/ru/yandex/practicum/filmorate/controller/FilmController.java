@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -27,7 +28,7 @@ public class FilmController {
         return filmService.getFilm();
     }
 
-    @PostMapping
+    @PostMapping()
     public Optional<Film> addFilm(@Valid @RequestBody Film film) {
         log.info("Поступил запрос на добавление фильма.");
         return filmService.createFilm(film);
@@ -46,11 +47,13 @@ public class FilmController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Film> getFilm(@Valid @PathVariable Integer id) {
+    public Optional<Film> getFilm(@Valid @PathVariable Integer id) {
         log.info("Получен GET-запрос на получение фильма");
-        return filmService.findById(id)
-                .map(film -> ResponseEntity.ok().body(film))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID"));
+        Optional<Film> film = filmService.findById(id);
+        if (film.isEmpty()) {
+            throw new NotFoundException("Невозможно найти фильм с указанным ID");
+        }
+        return film;
     }
 
     @PutMapping("{id}/like/{userId}")
