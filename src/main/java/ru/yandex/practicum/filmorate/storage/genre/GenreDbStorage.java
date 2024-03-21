@@ -59,13 +59,10 @@ public class GenreDbStorage implements GenreStorage {
 
         String sqlQuery = "INSERT INTO FILM_GENRE(film_id, genre_id) VALUES (?, ?)";
         List<Object[]> batchArgs = film.getGenres().stream()
-                .filter(Objects::nonNull)
                 .map(g -> new Object[]{film.getId(), g.getId()})
                 .collect(Collectors.toList());
 
-        if (!batchArgs.isEmpty()) {
-            jdbcTemplate.batchUpdate(sqlQuery, batchArgs);
-        }
+        jdbcTemplate.batchUpdate(sqlQuery, batchArgs);
     }
 
     public void addGenreNameToFilm(Film film) {

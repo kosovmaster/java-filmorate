@@ -17,10 +17,11 @@ import java.util.Optional;
 @RequestMapping("/mpa")
 @RequiredArgsConstructor
 public class MpaController {
+
     private final MpaService mpaService;
 
     @GetMapping
-    public Collection<Mpa> getAll() {
+    public Collection<Mpa> findAll() {
         log.info("Получен GET-запроса на получение списка MPA");
         return mpaService.findAll();
     }

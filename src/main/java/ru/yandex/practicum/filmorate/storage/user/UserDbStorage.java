@@ -54,8 +54,8 @@ public class UserDbStorage implements UserStorage {
     public UserDao updateUser(UserDao updatedUser) {
         String sqlQuery = "UPDATE USERS SET " +
                 "email=?, login=?, name=?, birthday=? WHERE user_id=?";
-        int rowCount = jdbcTemplate.update(sqlQuery, updatedUser.getEmail(), updatedUser.getId(), updatedUser.getLogin(),
-                updatedUser.getName(), updatedUser.getBirthday(), updatedUser.getFriends());
+        int rowCount = jdbcTemplate.update(sqlQuery, updatedUser.getEmail(), updatedUser.getLogin(),
+                updatedUser.getName(), updatedUser.getBirthday(), updatedUser.getId());
         if (rowCount > 0) {
             log.info("Пользователь изменён");
             return updatedUser;
@@ -136,17 +136,17 @@ public class UserDbStorage implements UserStorage {
     }
 
     private UserDao mapSqlRowSetToUser(SqlRowSet rowSet, int rowNum) throws SQLException {
-        UserDao user = UserDao.builder()
+        UserDao userDao = UserDao.builder()
                 .id(rowSet.getInt("user_id"))
                 .email(rowSet.getString("email"))
                 .login(rowSet.getString("login"))
                 .name(rowSet.getString("name"))
                 .birthday(rowSet.getDate("birthday").toLocalDate())
                 .build();
-        user.setFriends(getUserFriends(user.getId()).stream()
+        userDao.setFriends(getUserFriends(userDao.getId()).stream()
                 .map(UserDao::getId)
                 .collect(Collectors.toSet()));
-        return user;
+        return userDao;
     }
 
     private UserDao mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
@@ -163,12 +163,12 @@ public class UserDbStorage implements UserStorage {
         return userDao;
     }
 
-    private Map<String, Object> toMap(UserDao userDao) {
+    private Map<String, Object> toMap(UserDao user) {
         Map<String, Object> values = new HashMap<>();
-        values.put("name", userDao.name);
-        values.put("login", userDao.login);
-        values.put("email", userDao.email);
-        values.put("birthday", userDao.birthday);
+        values.put("email", user.email);
+        values.put("login", user.login);
+        values.put("name", user.name);
+        values.put("birthday", user.birthday);
         return values;
     }
 }

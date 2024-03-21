@@ -21,31 +21,38 @@ public class UserService {
     public Optional<User> createUser(User user) {
         validationUser(user);
         UserDao userDao = fromUserToDao(user);
-        return userStorage.createUser(userDao).map(this::toMap);
+        Optional<UserDao> result = userStorage.createUser(userDao);
+        if (result.isEmpty())
+            return Optional.empty();
+        return Optional.of(toMap(result.get()));
     }
 
     public List<User> getUsers() {
-        return userStorage.getUsers().stream()
+        var users = userStorage.getUsers();
+        return users.stream()
                 .map(this::toMap)
                 .collect(Collectors.toList());
     }
 
     public Optional<User> findById(Integer userId) {
         var dao = userStorage.findById(userId);
-        if (dao.isEmpty()) {
+        if (dao.isEmpty())
             return Optional.empty();
-        }
-        return dao.map(this::toMap);
+        return Optional.of(toMap(dao.get()));
     }
 
     public Collection<User> getFriends(Integer userId) {
-        return userStorage.getUserFriends(userId).stream()
+        return userStorage
+                .getUserFriends(userId)
+                .stream()
                 .map(this::toMap)
                 .collect(Collectors.toList());
     }
 
     public List<User> getCrossFriends(int userId, int otherUserId) {
-        return userStorage.getUserCrossFriends(userId, otherUserId).stream()
+        return userStorage
+                .getUserCrossFriends(userId, otherUserId)
+                .stream()
                 .map(this::toMap)
                 .collect(Collectors.toList());
     }
@@ -56,40 +63,37 @@ public class UserService {
 
     public Optional<User> updateUser(User updatedUser) {
         UserDao userDao = userStorage.updateUser(fromUserToDao(updatedUser));
-        return Optional.ofNullable(toMap(userDao));
+        return Optional.of(toMap(userDao));
     }
 
     public Optional<User> addFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
         var user = userStorage.findById(userId);
-        if (user.isEmpty()) {
+        if (user.isEmpty())
             return Optional.empty();
-        }
-        return Optional.ofNullable(toMap(user.get()));
+        return Optional.of(toMap(user.get()));
     }
 
     public Optional<User> removeFriend(int userId, int friendId) {
         userStorage.deleteFriend(userId, friendId);
         var user = userStorage.findById(userId);
-        if (user.isEmpty()) {
+        if (user.isEmpty())
             return Optional.empty();
-        }
-        return Optional.ofNullable(toMap(user.get()));
+        return Optional.of(toMap(user.get()));
     }
 
     private UserDao fromUserToDao(User user) {
-        UserDao userDao = new UserDao(
+        return new UserDao(
                 user.getId(),
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
                 user.getFriends());
-        return userDao;
     }
 
     private User toMap(UserDao userDao) {
-        User user = User.builder()
+        return User.builder()
                 .id(userDao.id)
                 .email(userDao.email)
                 .login(userDao.login)
@@ -97,8 +101,6 @@ public class UserService {
                 .birthday(userDao.birthday)
                 .friends(userDao.friends)
                 .build();
-
-        return user;
     }
 
     private void validationUser(User user) throws ValidationException {

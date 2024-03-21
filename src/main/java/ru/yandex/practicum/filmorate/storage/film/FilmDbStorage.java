@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Primary
 @Slf4j
@@ -25,7 +22,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<FilmDao> getFilm() {
+    public Collection<FilmDao> getFilm() {
         var sql = "SELECT film_id, name, description, release_date, duration, mpa_id FROM FILMS";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
@@ -45,9 +42,8 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "UPDATE FILMS SET " +
                 "name = :name, description = :description, release_date = :releaseDate, " +
                 "duration = :duration, mpa_id = :mpaId WHERE film_id = :id";
-
-        int rowsCount = jdbcTemplate.update(sqlQuery, updatedFilm);
-
+        int rowsCount = jdbcTemplate.update(sqlQuery, updatedFilm.getName(), updatedFilm.getDescription(),
+                updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpaId(), updatedFilm.getId());
         if (rowsCount > 0) {
             return updatedFilm;
         }

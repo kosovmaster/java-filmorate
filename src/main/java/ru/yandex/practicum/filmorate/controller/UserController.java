@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -34,9 +33,9 @@ public class UserController {
     }
 
     @PutMapping
-    public Optional<User> updateUser(@Valid @RequestBody User updateUser) {
+    public Optional<User> updateUser(@Valid @RequestBody User updatedUser) {
         log.info("Поступил запрос на обновление пользователя.");
-        return userService.updateUser(updateUser);
+        return userService.updateUser(updatedUser);
     }
 
     @DeleteMapping("{id}")
@@ -50,7 +49,7 @@ public class UserController {
         log.info("Поступил запрос на получение пользователя по id.");
         Optional<User> user = userService.findById(id);
         if (user.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти пользователя с указанным ID");
+            throw new NotFoundException("Невозможно найти пользователя с указанным ID");
         }
         return user;
     }
@@ -59,10 +58,9 @@ public class UserController {
     public void addFriend(@Valid @PathVariable Integer id, @Valid @PathVariable Integer friendId) {
         log.info("Поступил запрос на добавление в список друзей.");
         if (id < 1 || friendId < 1) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти пользователя с указанным ID");
+            throw new NotFoundException("Невозможно найти пользователя с указанным ID");
         }
         userService.addFriend(id, friendId);
-        userService.addFriend(friendId, id);
     }
 
     @DeleteMapping("{id}/friends/{friendId}")

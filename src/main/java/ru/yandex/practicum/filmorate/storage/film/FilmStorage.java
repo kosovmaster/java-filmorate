@@ -2,12 +2,13 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface FilmStorage {
 
-    List<FilmDao> getFilm();
+    Collection<FilmDao> getFilm();
 
     Optional<FilmDao> addFilm(FilmDao film);
 

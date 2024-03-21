@@ -47,13 +47,6 @@ public class MpaDbStorage implements MpaStorage {
         }
     }
 
-    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
-        return Mpa.builder()
-                .id(resultSet.getInt("mpa_id"))
-                .name(resultSet.getString("name"))
-                .build();
-    }
-
     @Override
     public void addMpaToFilm(Film film) {
         getAll().forEach(mpa -> {
@@ -61,5 +54,12 @@ public class MpaDbStorage implements MpaStorage {
                 film.setMpa(mpa);
             }
         });
+    }
+
+    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
+        return Mpa.builder()
+                .id(resultSet.getInt("mpa_id"))
+                .name(resultSet.getString("name"))
+                .build();
     }
 }
