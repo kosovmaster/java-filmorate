@@ -45,7 +45,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "UPDATE FILMS SET " +
                 "name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE film_id=?";
         int rowsCount = jdbcTemplate.update(sqlQuery, updatedFilm.getName(), updatedFilm.getDescription(),
-                updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpa(), updatedFilm.getId());
+                updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpa().getId(), updatedFilm.getId());
         if (rowsCount > 0) {
             return updatedFilm;
         }
