@@ -50,7 +50,7 @@ public class FilmController {
         log.info("Получен GET-запрос на получение фильма");
         return filmService.findById(id)
                 .map(film -> ResponseEntity.ok().body(film))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Невозможно найти фильм с указанным ID"));
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PutMapping("{id}/like/{userId}")

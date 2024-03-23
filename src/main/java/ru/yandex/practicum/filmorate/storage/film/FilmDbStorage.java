@@ -93,11 +93,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<FilmDao> findById(Integer filmId) {
-        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name FROM FILMS f JOIN MPAS m ON f.mpa_id = m.mpa_id WHERE f.film_id=?";
+        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name FROM FILMS f JOIN MPA m ON f.mpa_id = m.mpa_id WHERE f.film_id=?";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId));
         } catch (RuntimeException e) {
-            throw new NotFoundException("Фильм не найден");
+            return Optional.empty();
         }
     }
 
