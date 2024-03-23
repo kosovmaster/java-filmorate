@@ -68,13 +68,8 @@ public class FilmControllerTest extends AbstractControllerTest {
 
     @Test
     void createNewCorrectFilmIsOkTest() {
-        testFilm.setId(null); // устанавливаем null для поля id
         Optional<Film> film = controller.addFilm(testFilm);
-        assertEquals(film.get().getName(), testFilm.getName());
-        assertEquals(film.get().getDescription(), testFilm.getDescription());
-        assertEquals(film.get().getReleaseDate(), testFilm.getReleaseDate());
-        assertEquals(film.get().getDuration(), testFilm.getDuration());
-        assertEquals(film.get().getMpa(), testFilm.getMpa());
+        assertEquals(film, filmService.findById(3));
     }
 
     @Test

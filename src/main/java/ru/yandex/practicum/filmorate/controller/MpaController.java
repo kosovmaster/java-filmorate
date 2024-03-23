@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -27,8 +27,8 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    public Mpa getMpaRating(@PathVariable("id") int mpaId) {
+    public Optional<Mpa> getMpaRating(@PathVariable("id") int mpaId) {
         log.info("Получение GET-запроса на получение MPA по id: " + mpaId);
-        return mpaService.getMpaRating(mpaId).orElseThrow(() -> new NotFoundException("Рейтинг не найден"));
+        return mpaService.getMpaRating(mpaId);
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.FilmDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,7 +23,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<FilmDao> getFilm() {
-        var sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name FROM FILMS f JOIN MPAS m ON f.mpa_id = m.mpa_id";
+        String sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.name as mpa_name " +
+                "FROM FILMS f " +
+                "JOIN MPA m ON f.mpa_id = m.mpa_id";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
@@ -43,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "UPDATE FILMS SET " +
                 "name=?, description=?, release_date=?, duration=?, mpa_id=? WHERE film_id=?";
         int rowsCount = jdbcTemplate.update(sqlQuery, updatedFilm.getName(), updatedFilm.getDescription(),
-                updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpa(), updatedFilm.getId());
+                updatedFilm.getReleaseDate(), updatedFilm.getDuration(), updatedFilm.getMpaId(), updatedFilm.getId());
         if (rowsCount > 0) {
             return updatedFilm;
         }
@@ -93,11 +94,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<FilmDao> findById(Integer filmId) {
-        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name FROM FILMS f JOIN MPA m ON f.mpa_id = m.mpa_id WHERE f.film_id=?";
+        String sqlQuery = "SELECT film_id, name, description, release_date, duration, mpa_id " +
+                "FROM FILMS WHERE film_id=?";
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId));
         } catch (RuntimeException e) {
-            return Optional.empty();
+            throw new NotFoundException("Фильм не найден");
         }
     }
 
@@ -107,7 +109,7 @@ public class FilmDbStorage implements FilmStorage {
         values.put("description", filmDao.getDescription());
         values.put("release_date", filmDao.getReleaseDate());
         values.put("duration", filmDao.getDuration());
-        values.put("mpa", filmDao.getMpa());
+        values.put("mpa_id", filmDao.getMpaId());
         return values;
     }
 
@@ -118,9 +120,7 @@ public class FilmDbStorage implements FilmStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getLong("duration"))
-                .mpa(Mpa.builder()
-                        .id(resultSet.getInt("mpa_id"))
-                        .name(resultSet.getString("mpa_name")).build())
+                .mpaId(resultSet.getInt("mpa_id"))
                 .build();
     }
 }
