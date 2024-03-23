@@ -52,7 +52,7 @@ public class FilmControllerTest extends AbstractControllerTest {
         controller = new FilmController(filmService);
         testFilm = Film.builder()
                 .id(1)
-                .name("Тест название")
+                .name("NC-17")
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(2000, 12, 12))
                 .duration(190)
