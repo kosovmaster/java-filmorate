@@ -24,9 +24,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<FilmDao> getFilm() {
-        var sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.*\n" +
+        var sql = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.name as mpa_name\n" +
                 "FROM FILMS f\n" +
-                "JOIN MPA m ON f.mpa_id = m.id";
+                "JOIN MPA m ON f.mpa_id = m.mpa_id";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
