@@ -106,12 +106,12 @@ public class FilmService {
                 .description(film.getDescription())
                 .releaseDate(film.getReleaseDate())
                 .duration(film.getDuration())
-                .mpaId(film.getMpa().getId())
+                .mpa(film.getMpa())
                 .build();
     }
 
     private Film map(FilmDao filmDao) {
-        var mpa = mpaDbStorage.getMpaForId(filmDao.mpaId);
+        var mpa = mpaDbStorage.getMpaForId(filmDao.getMpa().getId());
         var genres = genreDbStorage.getGenreForCurrentFilm(filmDao.id);
         Film film = Film.builder()
                 .id(filmDao.getId())
