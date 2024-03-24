@@ -10,7 +10,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -18,7 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private Set<Integer> friends = new HashSet<>();
+    private Set<Integer> friends;
     @Min(value = 1, message = "Невозможно найти пользователя с данным ID")
     private Integer id;
     @Email(message = "Некорректно введён email. Электронная почта не может быть пустой и должна содержать символ @.")
@@ -28,8 +27,4 @@ public class User {
     private String name;
     @Past
     private LocalDate birthday;
-
-    public void addFriend(User user) {
-        this.friends.add(user.id);
-    }
 }

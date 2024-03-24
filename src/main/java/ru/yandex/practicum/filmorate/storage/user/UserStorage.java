@@ -1,26 +1,28 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 
-import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface UserStorage {
-    Collection<User> getUsers();
 
-    ResponseEntity<User> createUser(@Valid @RequestBody User user);
+    List<UserDao> getUsers();
 
-    ResponseEntity<User> updateUser(@Valid @RequestBody User updatedUser);
+    Optional<UserDao> createUser(UserDao userDao);
 
-    User deleteUser(Integer userId);
+    UserDao updateUser(UserDao updatedUser);
 
-    Optional<User> findById(Integer userId) throws RuntimeException;
+    void deleteUser(Integer userId);
 
-    Set<User> getUserFriends(Integer userId);
+    Optional<UserDao> findById(Integer userId) throws RuntimeException;
 
-    Collection<User> getUserCrossFriends(Integer id, Integer otherId);
+    Optional<UserDao> addFriend(Integer userId, Integer friendId);
+
+    Collection<UserDao> getUserFriends(Integer userId);
+
+    List<UserDao> getUserCrossFriends(Integer id, Integer otherId);
+
+    Optional<UserDao> deleteFriend(Integer userId, Integer friendId);
 }
